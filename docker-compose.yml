@@ -1,0 +1,24 @@
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: tracker_backend
+    stdin_open: true
+    tty: true
+    volumes:
+      - ./backend:/app
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: tracker_frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=/data/tracker.db
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - ./backend:/data
