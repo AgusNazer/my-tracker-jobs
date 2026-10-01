@@ -1,0 +1,338 @@
+:root {
+  --bg-dark: #12141a;
+  --panel-bg: #1a1e27;
+  --panel-header: #151820;
+  --border-color: #2b313f;
+  --border-subtle: #202531;
+  --text-main: #eceff4;
+  --text-dim: #7987a0;
+  --text-muted: #4c566a;
+  --accent-anyone: #88c0d0;
+  --accent-innodata: #ebcb8b;
+  --accent-total: #81a1c1;
+  --accent-green: #a3be8c;
+  --accent-red: #bf616a;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.container {
+  min-height: 100vh;
+  background-color: var(--bg-dark);
+  color: var(--text-main);
+  font-family: "JetBrains Mono", Consolas, Menlo, "Courier New", monospace;
+  padding: clamp(1rem, 3vw, 2.5rem);
+}
+
+.wrapper {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Header */
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.kicker {
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  color: var(--accent-total);
+  display: block;
+  margin-bottom: 0.25rem;
+}
+
+.title {
+  font-size: clamp(1.2rem, 4vw, 1.7rem);
+  font-weight: 700;
+  margin: 0;
+  color: var(--text-main);
+  letter-spacing: -0.02em;
+}
+
+.ratesBox {
+  background: var(--panel-bg);
+  border: 1px solid var(--border-color);
+  padding: 0.6rem 0.9rem;
+  font-size: 0.75rem;
+  line-height: 1.6;
+  border-radius: 4px;
+}
+
+/* Grilla de Métricas Fluida */
+.metricsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+  gap: 1rem;
+}
+
+.metricCard {
+  background: var(--panel-bg);
+  border: 1px solid var(--border-color);
+  padding: 1.2rem;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.metricLabel {
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  letter-spacing: 0.05em;
+}
+
+.metricBig {
+  font-size: clamp(1.5rem, 5vw, 2rem);
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.usd {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  font-weight: 400;
+}
+
+.metricSub {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* Formularios elásticos */
+.inputsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 360px), 1fr));
+  gap: 1.25rem;
+}
+
+.panelBox {
+  background: var(--panel-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.panelHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.85rem 1.1rem;
+  background: var(--panel-header);
+  border-bottom: 1px solid var(--border-color);
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.badge {
+  font-size: 0.68rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 3px;
+  border: 1px solid var(--border-color);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.formStack {
+  padding: 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  flex: 1;
+}
+
+.fieldGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.label {
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  letter-spacing: 0.04em;
+}
+
+/* Previene zoom indeseado en móviles (mínimo 16px) */
+.input, .select {
+  width: 100%;
+  background: #111318;
+  border: 1px solid var(--border-color);
+  color: var(--text-main);
+  padding: 0.75rem 0.85rem;
+  font-family: inherit;
+  font-size: 0.9rem;
+  border-radius: 4px;
+  outline: none;
+  min-height: 44px;
+  transition: border-color 0.15s ease;
+}
+
+.input:focus, .select:focus {
+  border-color: var(--accent-total);
+}
+
+.btnSubmit {
+  margin-top: auto;
+  min-height: 46px;
+  padding: 0.75rem;
+  font-family: inherit;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.15s;
+}
+
+.btnSubmit:active {
+  transform: scale(0.99);
+}
+
+.btnAnyone {
+  background: #233c4a;
+  border: 1px solid var(--accent-anyone);
+  color: #d8f2f8;
+}
+
+.btnInnodata {
+  background: #463b22;
+  border: 1px solid var(--accent-innodata);
+  color: #fff2d6;
+}
+
+/* Contenedor de la Tabla */
+.tableCard {
+  background: var(--panel-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.tableHeaderBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.85rem 1.1rem;
+  background: var(--panel-header);
+  border-bottom: 1px solid var(--border-color);
+  font-size: 0.75rem;
+  color: var(--accent-total);
+  font-weight: 600;
+}
+
+.tableScroll {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.82rem;
+  min-width: 650px; /* Asegura legibilidad en scroll horizontal si la pantalla es chica */
+}
+
+.th {
+  background: #14171f;
+  color: var(--text-dim);
+  padding: 0.85rem 1rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--border-color);
+  white-space: nowrap;
+}
+
+.tr {
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.tr:hover {
+  background: rgba(255, 255, 255, 0.015);
+}
+
+.td {
+  padding: 0.85rem 1rem;
+  vertical-align: middle;
+}
+
+.badgeClient {
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+  font-size: 0.7rem;
+  border-radius: 3px;
+  font-weight: 600;
+  border: 1px solid transparent;
+}
+
+.badgeAnyone {
+  color: var(--accent-anyone);
+  background: rgba(136, 192, 208, 0.08);
+  border-color: rgba(136, 192, 208, 0.25);
+}
+
+.badgeInnodata {
+  color: var(--accent-innodata);
+  background: rgba(235, 203, 139, 0.08);
+  border-color: rgba(235, 203, 139, 0.25);
+}
+
+.btnDelete {
+  background: rgba(191, 97, 106, 0.1);
+  color: #e5737d;
+  border: 1px solid rgba(191, 97, 106, 0.35);
+  padding: 0.4rem 0.7rem;
+  font-family: inherit;
+  font-size: 0.72rem;
+  cursor: pointer;
+  border-radius: 3px;
+  white-space: nowrap;
+}
+
+.btnDelete:hover {
+  background: rgba(191, 97, 106, 0.2);
+}
+
+.emptyPrompt {
+  padding: 3rem 1rem;
+  text-align: center;
+  color: var(--text-muted);
+  font-style: italic;
+  font-size: 0.85rem;
+}
+
+.errorBanner {
+  background: #361f22;
+  border: 1px solid var(--accent-red);
+  color: #ffadb5;
+  padding: 0.85rem 1rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+}
+
+/* En teléfonos muy angostos: adaptabilidad extra del header */
+@media (max-width: 600px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .ratesBox {
+    width: 100%;
+  }
+}
