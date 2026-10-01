@@ -1,4 +1,4 @@
-// File: /app/app/layout.tsx
+// File: /home/fizz/06-proyectos/hours-pay/frontend/app/layout.tsx
 import * as entry from '../../../app/layout.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 
