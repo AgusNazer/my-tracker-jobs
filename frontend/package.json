@@ -8,6 +8,7 @@
     "start": "next start -H 0.0.0.0"
   },
   "dependencies": {
+    "@supabase/ssr": "^0.12.7",
     "@supabase/supabase-js": "^2.117.2",
     "better-sqlite3": "^11.8.1",
     "next": "14.2.23",

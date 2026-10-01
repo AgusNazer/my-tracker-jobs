@@ -1,5 +1,7 @@
-import { supabase } from '../lib/supabase';
+// import { supabase } from '../lib/supabase';
 import { revalidatePath } from 'next/cache';
+import { createClient } from '../lib/supabase';
+import { redirect } from 'next/navigation';
 import './tracker.css';
 
 const BASE_RATE_ANYONE = 65.0;
@@ -17,6 +19,10 @@ interface SessionRow {
 
 async function submitAnyoneAction(formData: FormData) {
   'use server';
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect('/login');
+
   const subproject = (formData.get('subproject') as string)?.trim() || 'General';
   const aht = parseFloat(formData.get('aht') as string) || 15.0;
   const tasks = parseFloat(formData.get('tasks') as string) || 0;
@@ -32,6 +38,7 @@ async function submitAnyoneAction(formData: FormData) {
 
   await supabase.from('sessions').insert([
     {
+      user_id: user.id,
       client: 'Anyone AI',
       hours: computedHours,
       rate_per_hour: BASE_RATE_ANYONE,
@@ -43,9 +50,12 @@ async function submitAnyoneAction(formData: FormData) {
 
   revalidatePath('/');
 }
-
 async function submitInnodataAction(formData: FormData) {
   'use server';
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect('/login');
+
   const hours = parseFloat(formData.get('hours') as string) || 0;
   const notesInput = (formData.get('notes') as string)?.trim() || 'General';
 
@@ -57,6 +67,7 @@ async function submitInnodataAction(formData: FormData) {
 
   await supabase.from('sessions').insert([
     {
+      user_id: user.id, // <-- Faltaba esto
       client: 'Innodata',
       hours,
       rate_per_hour: BASE_RATE_INNODATA,
@@ -71,14 +82,29 @@ async function submitInnodataAction(formData: FormData) {
 
 async function deleteSessionAction(formData: FormData) {
   'use server';
+  const supabase = createClient();
   const id = formData.get('id');
   if (!id) return;
 
   await supabase.from('sessions').delete().eq('id', id);
   revalidatePath('/');
 }
+async function logoutAction() {
+  'use server';
+  const supabase = createClient();
+  await supabase.auth.signOut();
+  redirect('/login');
+}
 
 export default async function Home() {
+
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect('/login');
+  }
+
   let rows: SessionRow[] = [];
   let dbError = '';
 
@@ -108,6 +134,28 @@ export default async function Home() {
     <main className="container">
       <div className="wrapper">
         <header className="header">
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', justifyContent: 'flex-end', marginBottom: '1rem' }}>
+  <span style={{ fontSize: '0.8rem', color: 'var(--text-dim)' }}>
+    Usuario: <strong style={{ color: 'var(--text-main)' }}>{user.email}</strong>
+  </span>
+  <form action={logoutAction}>
+    <button
+      type="submit"
+      style={{
+        background: '#202531',
+        border: '1px solid var(--border-color)',
+        color: 'var(--text-main)',
+        padding: '0.35rem 0.8rem',
+        fontSize: '0.75rem',
+        borderRadius: '4px',
+        cursor: 'pointer',
+        fontFamily: 'inherit',
+      }}
+    >
+      Cerrar sesión
+    </button>
+  </form>
+</div>
           <div>
             <span className="kicker">SYSTEM LOG // SUPABASE POSTGRESQL</span>
             <h1 className="title">TRACKER DE TAREAS & LIQUIDACIÓN</h1>
