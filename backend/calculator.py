@@ -92,6 +92,111 @@ def delete_entry():
         print("❌ Debés ingresar un número.")
 
     input("\nPresioná [Enter] para volver...")
+    
+def update_entry():
+    with sqlite3.connect(DB_FILE) as conn:
+        cursor = conn.cursor()
+    cursor.execute("SELECT id, date, client, hours, rate_per_hour, total_pay, notes FROM sessions ORDER BY id DESC")
+    rows = cursor.fetchall()
+
+    if not rows:
+        print("\n⚠ No hay registros para editar.")
+        input("\nPresioná [Enter] para volver...")
+        return
+
+    print("\n" + "=" * 75)
+    print(f"{'SELECCIONAR REGISTRO PARA EDITAR':^75}")
+    print("=" * 75)
+    for r_id, date, client, hours, rate, pay, notes in rows:
+        print(f"[{r_id:>3}] {date} | {client:<10} | {hours:>5.2f}h | ${pay:>6.2f} | {notes or ''}")
+    print("-" * 75)
+
+    target = input("\nID a editar (o 'c' para cancelar): ").strip()
+    if target.lower() == "c":
+        return
+
+    try:
+        id_num = int(target)
+    except ValueError:
+        print("❌ Debés ingresar un número válido.")
+        input("\nPresioná [Enter] para volver...")
+        return
+
+    with sqlite3.connect(DB_FILE) as conn:
+        cursor = conn.cursor()
+        cursor.execute(
+            "SELECT id, date, client, hours, rate_per_hour, total_pay, notes FROM sessions WHERE id = ?",
+            (id_num,),
+        )
+        row = cursor.fetchone()
+
+        if not row:
+            print(f"❌ No existe el ID #{id_num}.")
+            input("\nPresioná [Enter] para volver...")
+            return
+
+        _, cur_date, cur_client, cur_hours, cur_rate, _, cur_notes = row
+
+        print(f"\nEditando registro #{id_num} (Dejá vacío [Enter] para no cambiar el valor):")
+
+        # Cliente
+        new_client = input(f"Cliente [{cur_client}]: ").strip()
+        client = new_client if new_client else cur_client
+
+        # Horas
+        while True:
+            new_hours_raw = input(f"Horas [{cur_hours:.2f}]: ").strip()
+            if not new_hours_raw:
+                hours = cur_hours
+                break
+            try:
+                val = float(new_hours_raw)
+                if val > 0:
+                    hours = val
+                    break
+                print("❌ Las horas deben ser mayores a 0.")
+            except ValueError:
+                print("❌ Formato numérico inválido.")
+
+        # Rate
+        while True:
+            new_rate_raw = input(f"Tarifa por hora [{cur_rate:.2f}]: ").strip()
+            if not new_rate_raw:
+                rate = cur_rate
+                break
+            try:
+                val = float(new_rate_raw)
+                if val > 0:
+                    rate = val
+                    break
+                print("❌ La tarifa debe ser mayor a 0.")
+            except ValueError:
+                print("❌ Formato numérico inválido.")
+
+        # Fecha
+        new_date = input(f"Fecha (YYYY-MM-DD HH:MM) [{cur_date}]: ").strip()
+        date = new_date if new_date else cur_date
+
+        # Notas
+        current_notes_display = cur_notes if cur_notes else ""
+        new_notes = input(f"Notas [{current_notes_display}]: ").strip()
+        notes = new_notes if new_notes else cur_notes
+
+        total_pay = hours * rate
+
+        cursor.execute(
+            """
+            UPDATE sessions
+            SET client = ?, hours = ?, rate_per_hour = ?, total_pay = ?, date = ?, notes = ?
+            WHERE id = ?
+            """,
+            (client, hours, rate, total_pay, date, notes, id_num),
+        )
+        conn.commit()
+
+        print(f"\n✔ Registro #{id_num} actualizado: {hours:.2f}h x ${rate:.2f} = ${total_pay:.2f} USD")
+
+    input("\nPresioná [Enter] para volver...")
 
 def generate_report():
     with sqlite3.connect(DB_FILE) as conn:
@@ -181,9 +286,10 @@ def main():
         print("2. Innodata ($8/h reloj)")
         print("3. Ver reporte acumulado")
         print("4. Eliminar registro")
-        print("5. Salir")
+        print("5. Editar registro")
+        print("6. Salir")
 
-        opt = input("\nSeleccioná una opción (1-5): ").strip()
+        opt = input("\nSeleccioná una opción (1-6): ").strip()
 
         if opt == "1":
             subproject = input("\nNombre o tag del subproyecto (ej: Code Review, RLHF): ").strip()
@@ -210,11 +316,14 @@ def main():
             delete_entry()
 
         elif opt == "5":
+            update_entry()
+
+        elif opt == "6":
             print("\n¡Nos vemos! Datos guardados en tracker.db.")
             break
 
         else:
-            print("❌ Opción inválida. Ingresá un número del 1 al 5.")
+            print("❌ Opción inválida. Ingresá un número del 1 al 6.")
 
 
 if __name__ == "__main__":

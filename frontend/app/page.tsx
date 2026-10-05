@@ -2,6 +2,7 @@
 import { revalidatePath } from 'next/cache';
 import { createClient } from '../lib/supabase';
 import { redirect } from 'next/navigation';
+import EditModal from './EditModal';
 import './tracker.css';
 
 const BASE_RATE_ANYONE = 65.0;
@@ -65,9 +66,11 @@ async function submitInnodataAction(formData: FormData) {
   const now = new Date();
   const dateStr = now.toISOString().replace('T', ' ').substring(0, 16);
 
+
+  // LOGIN logic
   await supabase.from('sessions').insert([
     {
-      user_id: user.id, // <-- Faltaba esto
+      user_id: user.id,
       client: 'Innodata',
       hours,
       rate_per_hour: BASE_RATE_INNODATA,
@@ -94,6 +97,30 @@ async function logoutAction() {
   const supabase = createClient();
   await supabase.auth.signOut();
   redirect('/login');
+}
+
+async function updateSessionAction(formData: FormData) {
+  'use server';
+  const supabase = createClient();
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect('/login');
+
+  const id = formData.get('id');
+  const hours = parseFloat(formData.get('hours') as string) || 0;
+  const rate_per_hour = parseFloat(formData.get('rate_per_hour') as string) || 0;
+  const notes = (formData.get('notes') as string)?.trim() || null;
+
+  if (!id || hours <= 0 || rate_per_hour <= 0) return;
+
+  const total_pay = hours * rate_per_hour;
+
+  await supabase
+    .from('sessions')
+    .update({ hours, rate_per_hour, total_pay, notes })
+    .eq('id', id)
+    .eq('user_id', user.id);
+
+  revalidatePath('/');
 }
 
 export default async function Home() {
@@ -331,14 +358,16 @@ export default async function Home() {
                         <td className="td" style={{ color: '#a0aab8', fontSize: '0.78rem' }}>
                           {r.notes || '--'}
                         </td>
-                        <td className="td" style={{ textAlign: 'center' }}>
-                          <form action={deleteSessionAction} style={{ display: 'inline' }}>
-                            <input type="hidden" name="id" value={r.id} />
-                            <button type="submit" className="btnDelete">
-                              ✕ BORRAR
-                            </button>
-                          </form>
-                        </td>
+                        
+                        <td className="td" style={{ textAlign: 'center', whiteSpace: 'nowrap' }}>
+  <EditModal row={r} onUpdate={updateSessionAction} />
+  <form action={deleteSessionAction} style={{ display: 'inline' }}>
+    <input type="hidden" name="id" value={r.id} />
+    <button type="submit" className="btnDelete">
+      ✕ BORRAR
+    </button>
+  </form>
+</td>
                       </tr>
                     );
                   })}

@@ -9,3 +9,4 @@ frontend/.env.local
 *.sqlite
 *.log
 __pycache__/
+.next/
